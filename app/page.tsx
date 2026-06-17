@@ -67,7 +67,7 @@ export default function Home() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-sm md:max-w-2xl mx-auto">
       <div className="space-y-2 p-3 md:p-4">
         
         {/* Son 4 Ay Brüt Kazancı - Kompakt */}
@@ -108,6 +108,7 @@ export default function Home() {
                     onChange={(e) => handleMonthChange(index, 'grossWage', e.target.value)}
                     placeholder="₺"
                     step="0.01"
+                    required
                     className="input-field text-xs md:text-sm p-2 w-full"
                   />
                 </div>
@@ -119,12 +120,13 @@ export default function Home() {
         {/* Sigortalı Gün & Referans Tarihi - Yan Yana */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <section className="section-card p-3">
-            <label className="label-text text-xs md:text-sm">Toplam Sigortalı Gün (3 yıl)</label>
+            <label className="label-text text-xs md:text-sm">Son 3 yılda sigortalı gün sayınızı giriniz</label>
             <input
               type="number"
               value={totalInsuredDays || ''}
               onChange={(e) => setTotalInsuredDays(parseInt(e.target.value) || 0)}
               placeholder="0"
+              required
               className="input-field text-xs md:text-sm p-2"
             />
           </section>
@@ -224,20 +226,20 @@ export default function Home() {
                 </div>
 
                 {/* NET ÖDENEĞI */}
-                <div className="section-card bg-blue-50 border-blue-300 border-2 p-3">
-                  <h3 className="text-sm font-bold text-blue-900 mb-2">Brüt Toplam</h3>
-                  <p className="text-xs text-blue-700 mb-2">
+                <div className="section-card bg-blue-50 border-blue-300 border-2 p-2 md:p-3">
+                  <h3 className="text-xs md:text-sm font-bold text-blue-900 mb-1 md:mb-2">Brüt Toplam</h3>
+                  <p className="text-xs text-blue-700 mb-1 md:mb-2">
                     {result.totalBenefitAmount.toLocaleString('tr-TR')} ₺
                   </p>
                   
-                  <div className="flex justify-between text-xs mb-2 py-2 border-t border-blue-300">
-                    <span className="text-blue-700">Damga Vergisi (%0,759):</span>
+                  <div className="flex justify-between text-xs mb-1 md:mb-2 py-1 md:py-2 border-t border-blue-300">
+                    <span className="text-blue-700">Damga Vergisi:</span>
                     <span className="font-semibold text-red-600">-{result.stampTaxAmount.toLocaleString('tr-TR')} ₺</span>
                   </div>
 
                   <div className="bg-white p-2 rounded border border-blue-300 text-center">
                     <p className="text-xs font-bold text-blue-600 mb-1">NET ÖDENEĞI</p>
-                    <p className="text-lg md:text-2xl font-bold text-blue-900">
+                    <p className="text-lg md:text-2xl font-bold text-blue-900 break-words">
                       {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
                     </p>
                     <p className="text-xs text-blue-600 mt-1">Alacağı Net Ücret</p>

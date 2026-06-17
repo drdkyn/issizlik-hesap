@@ -16,7 +16,7 @@ export default function RootLayout({
       <body className="antialiased">
         <header className="bg-sgk-700 text-white shadow-lg py-3">
           <div className="px-3 md:px-4">
-            <h1 className="text-xl md:text-2xl font-bold">SGK İşsizlik Ödeneği</h1>
+            <h1 className="text-xl md:text-2xl font-bold">İşsizlik Ödeneği</h1>
           </div>
         </header>
         <main>
