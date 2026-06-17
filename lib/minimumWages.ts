@@ -34,10 +34,10 @@ export const minimumWages = [
   { date: "2005-01-01", daily: 16.29, monthly: 488.70, maximum: 3176.55 },
 ] as const;
 
-export function getMinimumWageByDate(year: number, month: number): typeof minimumWages[0] | null {
+export function getMinimumWageByDate(year: number, month: number): typeof minimumWages[number] {
   const targetDate = new Date(year, month - 1, 1);
   
-  let closest = minimumWages[0];
+  let closest: typeof minimumWages[number] = minimumWages[0];
   let closestDiff = Math.abs(new Date(minimumWages[0].date).getTime() - targetDate.getTime());
   
   for (const wage of minimumWages) {

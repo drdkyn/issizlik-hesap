@@ -59,23 +59,6 @@ export function calculateUnemploymentBenefit(
 
   // Get minimum wage for the reference date
   const minimumWage = getMinimumWageByDate(referenceYear, referenceMonth);
-  if (!minimumWage) {
-    return {
-      dailyAverage,
-      dailyBenefit,
-      monthlyBenefit,
-      benefitDays: 0,
-      maxAllowedDaily: 0,
-      cappedDailyBenefit: 0,
-      cappedMonthlyBenefit: 0,
-      totalBenefitAmount: 0,
-      stampTaxRate: 0,
-      stampTaxAmount: 0,
-      netBenefitAmount: 0,
-      isEligible: false,
-      eligibilityMessage: 'Geçerli asgari ücret tarihi bulunamadı',
-    };
-  }
 
   // Maximum allowed is 80% of minimum wage - Madde 50
   const maxAllowedDaily = minimumWage.monthly * 0.8 / 30;
