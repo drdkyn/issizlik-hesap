@@ -123,7 +123,7 @@ export default function Home() {
         {/* Sigortalı Gün & Referans Tarihi - Yan Yana */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <section className="section-card p-3">
-            <label className="label-text text-xs md:text-sm">Son 3 yılda sigortalı gün sayınızı giriniz</label>
+            <label className="label-text text-xs md:text-sm">Son 3 yıldaki sigortalı gün sayınızı giriniz</label>
             <input
               type="number"
               value={totalInsuredDays || ''}
