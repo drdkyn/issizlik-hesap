@@ -275,13 +275,31 @@ export default function Home() {
                   </div>
 
                   <div className="section-card bg-blue-50 border-blue-200">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">Toplam Ödeneği Tutarı</h3>
-                    <p className="text-4xl font-bold text-blue-700">
-                      {result.totalBenefitAmount.toLocaleString('tr-TR')} ₺
-                    </p>
-                    <p className="text-sm text-blue-600 mt-2">
-                      {(result.cappedMonthlyBenefit * (result.benefitDays / 30)).toLocaleString('tr-TR')} ₺ 
-                      ({result.benefitDays} gün × {(result.cappedMonthlyBenefit / 30).toLocaleString('tr-TR')} ₺/gün)
+                    <h3 className="text-lg font-bold text-blue-900 mb-4">Toplam Ödeneği Tutarı</h3>
+                    
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Brüt Toplam Ödeneği:</span>
+                        <span className="font-semibold text-blue-900">{result.totalBenefitAmount.toLocaleString('tr-TR')} ₺</span>
+                      </div>
+                      <div className="flex justify-between pt-3 border-t-2 border-blue-300">
+                        <span className="text-blue-700">Damga Vergisi Kesintisi ({result.stampTaxRate.toFixed(3)}%):</span>
+                        <span className="font-semibold text-red-600">-{result.stampTaxAmount.toLocaleString('tr-TR')} ₺</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border-2 border-blue-400">
+                      <h4 className="text-sm font-semibold text-blue-600 mb-2">NET ÖDENEĞI</h4>
+                      <p className="text-4xl font-bold text-blue-900">
+                        {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
+                      </p>
+                      <p className="text-xs text-blue-600 mt-2">
+                        Alacağı net ücret (damga vergisi sonrası)
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-blue-600 mt-3 text-center">
+                      Hesaplama: {result.totalBenefitAmount.toLocaleString('tr-TR')} ₺ - {result.stampTaxAmount.toLocaleString('tr-TR')} ₺ = {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
                     </p>
                   </div>
                 </>

@@ -15,6 +15,9 @@ export interface CalculationResult {
   cappedDailyBenefit: number;
   cappedMonthlyBenefit: number;
   totalBenefitAmount: number;
+  stampTaxRate: number;
+  stampTaxAmount: number;
+  netBenefitAmount: number;
   isEligible: boolean;
   eligibilityMessage: string;
 }
@@ -99,6 +102,11 @@ export function calculateUnemploymentBenefit(
   }
 
   const totalBenefitAmount = cappedMonthlyBenefit * (benefitDays / 30);
+  
+  // Calculate stamp tax deduction (damga vergisi) - %0.759
+  const stampTaxRate = 0.00759;
+  const stampTaxAmount = totalBenefitAmount * stampTaxRate;
+  const netBenefitAmount = totalBenefitAmount - stampTaxAmount;
 
   return {
     dailyAverage: Math.round(dailyAverage * 100) / 100,
@@ -109,6 +117,9 @@ export function calculateUnemploymentBenefit(
     cappedDailyBenefit: Math.round(cappedDailyBenefit * 100) / 100,
     cappedMonthlyBenefit: Math.round(cappedMonthlyBenefit * 100) / 100,
     totalBenefitAmount: Math.round(totalBenefitAmount * 100) / 100,
+    stampTaxRate: stampTaxRate * 100,
+    stampTaxAmount: Math.round(stampTaxAmount * 100) / 100,
+    netBenefitAmount: Math.round(netBenefitAmount * 100) / 100,
     isEligible,
     eligibilityMessage,
   };
