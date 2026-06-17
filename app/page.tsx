@@ -7,7 +7,8 @@ export default function Home() {
   const getDefaultMonths = (): MonthlyWage[] => {
     const months: MonthlyWage[] = [];
     const today = new Date();
-    for (let i = 0; i < 4; i++) {
+    
+    for (let i = 1; i <= 4; i++) {
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
       months.push({
         year: date.getFullYear(),
@@ -66,7 +67,7 @@ export default function Home() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="space-y-2 p-3 md:p-4">
         
         {/* Son 4 Ay Brüt Kazancı - Kompakt */}
@@ -126,9 +127,6 @@ export default function Home() {
               placeholder="0"
               className="input-field text-xs md:text-sm p-2"
             />
-            <div className="mt-1 text-xs text-sgk-600">
-              600→180g | 900→240g | 1080+→300g
-            </div>
           </section>
 
           <section className="section-card p-3">
