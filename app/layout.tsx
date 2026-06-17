@@ -23,7 +23,7 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="bg-sgk-800 text-sgk-100 py-2 mt-4 text-center text-xs">
-          <p>© 2026 SGK İşsizlik Ödeneği Hesaplama</p>
+          <p>© İşsizlik Ödeneği Hesaplama</p>
         </footer>
       </body>
     </html>

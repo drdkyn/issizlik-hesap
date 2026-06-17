@@ -87,7 +87,7 @@ export default function Home() {
         <section className="section-card p-3 md:p-4">
           <h2 className="text-lg md:text-xl font-bold text-sgk-700 mb-2">
             Son 4 Ay Brüt Kazancı 
-            <span className="text-xs md:text-sm font-normal text-sgk-600 ml-1">(SGK Hizmet Dökümen'deki)</span>
+            <span className="text-xs md:text-sm font-normal text-sgk-600 ml-1">(SGK Hizmet Dökümündeki)</span>
           </h2>
           <p className="text-xs md:text-sm text-sgk-600 mb-2">İlk satıra yazınca otomatik kopyalanır</p>
           
@@ -136,7 +136,7 @@ export default function Home() {
         {/* Sigortalı Gün & Referans Tarihi - Yan Yana */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <section className="section-card p-3">
-            <label className="label-text text-xs md:text-sm">Son 3 yılda sigortalı gün sayınızı giriniz</label>
+            <label className="label-text text-xs md:text-sm">Son 3 yıldaki sigortalı gün sayınızı giriniz</label>
             <input
               type="number"
               value={totalInsuredDays || ''}
