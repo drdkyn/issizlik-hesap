@@ -46,6 +46,19 @@ export default function Home() {
   };
 
   const handleCalculate = () => {
+    // Validation: Check if gün sayısı is filled
+    if (totalInsuredDays === 0) {
+      alert('⚠️ Lütfen son 3 yılda sigortalı gün sayısını giriniz!');
+      return;
+    }
+
+    // Validation: Check if at least one wage is filled
+    const hasAnyWage = lastFourMonths.some(month => month.grossWage > 0);
+    if (!hasAnyWage) {
+      alert('⚠️ Lütfen en az bir ay için brüt kazançı giriniz!');
+      return;
+    }
+
     const calc = calculateUnemploymentBenefit(
       lastFourMonths,
       totalInsuredDays,
