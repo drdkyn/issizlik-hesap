@@ -1,20 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { calculateUnemploymentBenefit, type MonthlyWage, type CalculationResult } from '@/lib/calculations';
-import { minimumWages } from '@/lib/minimumWages';
 
 export default function Home() {
-  const [lastFourMonths, setLastFourMonths] = useState<MonthlyWage[]>([
-    { year: 2026, month: 1, grossWage: 0 },
-    { year: 2025, month: 12, grossWage: 0 },
-    { year: 2025, month: 11, grossWage: 0 },
-    { year: 2025, month: 10, grossWage: 0 },
-  ]);
+  const getDefaultMonths = (): MonthlyWage[] => {
+    const months: MonthlyWage[] = [];
+    const today = new Date();
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      months.push({
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        grossWage: 0,
+      });
+    }
+    return months;
+  };
 
+  const [lastFourMonths, setLastFourMonths] = useState<MonthlyWage[]>(getDefaultMonths());
   const [totalInsuredDays, setTotalInsuredDays] = useState<number>(0);
-  const [referenceYear, setReferenceYear] = useState<number>(2026);
-  const [referenceMonth, setReferenceMonth] = useState<number>(1);
+  const [referenceYear, setReferenceYear] = useState<number>(new Date().getFullYear());
+  const [referenceMonth, setReferenceMonth] = useState<number>(new Date().getMonth() + 1);
   const [result, setResult] = useState<CalculationResult | null>(null);
 
   const handleMonthChange = (index: number, field: string, value: string | number) => {
@@ -24,7 +31,15 @@ export default function Home() {
     } else if (field === 'month') {
       updated[index].month = parseInt(value as string);
     } else if (field === 'grossWage') {
-      updated[index].grossWage = parseFloat(value as string) || 0;
+      const wage = parseFloat(value as string) || 0;
+      updated[index].grossWage = wage;
+      
+      // İlk satıra yazılırsa diğerlerine de kopyala
+      if (index === 0) {
+        for (let i = 1; i < 4; i++) {
+          updated[i].grossWage = wage;
+        }
+      }
     }
     setLastFourMonths(updated);
   };
@@ -40,15 +55,10 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    setLastFourMonths([
-      { year: 2026, month: 1, grossWage: 0 },
-      { year: 2025, month: 12, grossWage: 0 },
-      { year: 2025, month: 11, grossWage: 0 },
-      { year: 2025, month: 10, grossWage: 0 },
-    ]);
+    setLastFourMonths(getDefaultMonths());
     setTotalInsuredDays(0);
-    setReferenceYear(2026);
-    setReferenceMonth(1);
+    setReferenceYear(new Date().getFullYear());
+    setReferenceMonth(new Date().getMonth() + 1);
     setResult(null);
   };
 
@@ -56,294 +66,197 @@ export default function Home() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Input Form */}
-        <div className="space-y-6">
-          <section className="section-card">
-            <h2 className="text-2xl font-bold text-sgk-700 mb-6">Son 4 Ayın Brüt Kazancı</h2>
-            <p className="text-sm text-sgk-600 mb-4">
-              Prime esas kazancı (SGK'da kayıtlı brüt tutar) giriniz
-            </p>
-
-            <div className="space-y-4">
-              {lastFourMonths.map((month, index) => (
-                <div
-                  key={index}
-                  className="p-4 border border-sgk-200 rounded-lg bg-sgk-50"
-                >
-                  <p className="text-sm font-semibold text-sgk-700 mb-3">Ay {index + 1}</p>
-
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <label className="label-text">Yıl</label>
-                      <select
-                        value={month.year}
-                        onChange={(e) => handleMonthChange(index, 'year', e.target.value)}
-                        className="input-field"
-                      >
-                        {years.map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="label-text">Ay</label>
-                      <select
-                        value={month.month}
-                        onChange={(e) => handleMonthChange(index, 'month', e.target.value)}
-                        className="input-field"
-                      >
-                        {months.map((m) => (
-                          <option key={m} value={m}>
-                            {String(m).padStart(2, '0')}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label-text">Brüt Kazanç (₺)</label>
-                    <input
-                      type="number"
-                      value={month.grossWage || ''}
-                      onChange={(e) => handleMonthChange(index, 'grossWage', e.target.value)}
-                      placeholder="0.00"
-                      step="0.01"
-                      className="input-field"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="section-card">
-            <h2 className="text-xl font-bold text-sgk-700 mb-4">İşsizlik Sigortası Prim Dönemleri</h2>
-            <p className="text-sm text-sgk-600 mb-4">
-              Son 3 yılda sigortalı olarak çalışılan toplam gün sayısı
-            </p>
-
-            <div>
-              <label className="label-text">Toplam Sigortalı Gün</label>
-              <input
-                type="number"
-                value={totalInsuredDays || ''}
-                onChange={(e) => setTotalInsuredDays(parseInt(e.target.value) || 0)}
-                placeholder="0"
-                className="input-field"
-              />
-              <div className="mt-3 p-3 bg-sgk-50 border border-sgk-200 rounded text-sm text-sgk-700">
-                <p className="font-semibold mb-2">Ödenek Alma Süresi:</p>
-                <ul className="space-y-1 text-xs">
-                  <li>• 600 gün altı: Ödeme yapılmaz</li>
-                  <li>• 600-899 gün: 180 gün</li>
-                  <li>• 900-1079 gün: 240 gün</li>
-                  <li>• 1080+ gün: 300 gün</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section className="section-card">
-            <h2 className="text-xl font-bold text-sgk-700 mb-4">Hesaplama Tarihi</h2>
-            <p className="text-sm text-sgk-600 mb-4">
-              En yakın asgari ücret tarifesi uygulanacak tarih
-            </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="label-text">Yıl</label>
+    <div className="w-full max-w-full">
+      <div className="space-y-2 p-3 md:p-4">
+        
+        {/* Son 4 Ay Brüt Kazancı - Kompakt */}
+        <section className="section-card p-3 md:p-4">
+          <h2 className="text-lg md:text-xl font-bold text-sgk-700 mb-2">Son 4 Ay Brüt Kazancı</h2>
+          <p className="text-xs md:text-sm text-sgk-600 mb-2">İlk satıra yazınca otomatik kopyalanır</p>
+          
+          <div className="space-y-1.5">
+            {lastFourMonths.map((month, index) => (
+              <div key={index} className="grid grid-cols-5 gap-1 md:gap-2">
+                {/* Yıl */}
                 <select
-                  value={referenceYear}
-                  onChange={(e) => setReferenceYear(parseInt(e.target.value))}
-                  className="input-field"
+                  value={month.year}
+                  onChange={(e) => handleMonthChange(index, 'year', e.target.value)}
+                  className="input-field text-xs md:text-sm p-2"
                 >
                   {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
+                    <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="label-text">Ay</label>
+
+                {/* Ay */}
                 <select
-                  value={referenceMonth}
-                  onChange={(e) => setReferenceMonth(parseInt(e.target.value))}
-                  className="input-field"
+                  value={month.month}
+                  onChange={(e) => handleMonthChange(index, 'month', e.target.value)}
+                  className="input-field text-xs md:text-sm p-2"
                 >
                   {months.map((m) => (
-                    <option key={m} value={m}>
-                      {String(m).padStart(2, '0')}
-                    </option>
+                    <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
                   ))}
                 </select>
+
+                {/* Kazanç - Daha geniş */}
+                <div className="col-span-3">
+                  <input
+                    type="number"
+                    value={month.grossWage || ''}
+                    onChange={(e) => handleMonthChange(index, 'grossWage', e.target.value)}
+                    placeholder="₺"
+                    step="0.01"
+                    className="input-field text-xs md:text-sm p-2 w-full"
+                  />
+                </div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Sigortalı Gün & Referans Tarihi - Yan Yana */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <section className="section-card p-3">
+            <label className="label-text text-xs md:text-sm">Toplam Sigortalı Gün (3 yıl)</label>
+            <input
+              type="number"
+              value={totalInsuredDays || ''}
+              onChange={(e) => setTotalInsuredDays(parseInt(e.target.value) || 0)}
+              placeholder="0"
+              className="input-field text-xs md:text-sm p-2"
+            />
+            <div className="mt-1 text-xs text-sgk-600">
+              600→180g | 900→240g | 1080+→300g
             </div>
           </section>
 
-          <div className="flex gap-3">
-            <button onClick={handleCalculate} className="btn-primary flex-1">
-              Hesapla
-            </button>
-            <button onClick={handleReset} className="btn-secondary flex-1">
-              Sıfırla
-            </button>
-          </div>
+          <section className="section-card p-3">
+            <label className="label-text text-xs md:text-sm">Hesaplama Tarihi</label>
+            <div className="grid grid-cols-2 gap-1">
+              <select
+                value={referenceYear}
+                onChange={(e) => setReferenceYear(parseInt(e.target.value))}
+                className="input-field text-xs md:text-sm p-2"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+              <select
+                value={referenceMonth}
+                onChange={(e) => setReferenceMonth(parseInt(e.target.value))}
+                className="input-field text-xs md:text-sm p-2"
+              >
+                {months.map((m) => (
+                  <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                ))}
+              </select>
+            </div>
+          </section>
         </div>
 
-        {/* Right Column - Results */}
-        <div>
-          {result ? (
-            <div className="space-y-4">
-              {!result.isEligible && (
-                <div className="section-card bg-red-50 border-red-200">
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">⚠️</div>
-                    <div>
-                      <h3 className="font-bold text-red-800">Ödeneğe Hak Yok</h3>
-                      <p className="text-red-700 text-sm mt-1">{result.eligibilityMessage}</p>
+        {/* Düğmeler */}
+        <div className="flex gap-2">
+          <button onClick={handleCalculate} className="btn-primary flex-1 py-2 text-sm">
+            Hesapla
+          </button>
+          <button onClick={handleReset} className="btn-secondary flex-1 py-2 text-sm">
+            Sıfırla
+          </button>
+        </div>
+
+        {/* SONUÇLAR - Aşağıya Taşındı */}
+        {result && (
+          <div className="space-y-2 mt-4">
+            {!result.isEligible && (
+              <div className="section-card bg-red-50 border-red-200 p-3">
+                <div className="flex items-start gap-2">
+                  <div className="text-xl">⚠️</div>
+                  <div>
+                    <h3 className="font-bold text-red-800 text-sm">Ödeneğe Hak Yok</h3>
+                    <p className="text-red-700 text-xs mt-1">{result.eligibilityMessage}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {result.isEligible && (
+              <>
+                <div className="section-card bg-green-50 border-green-200 p-3">
+                  <h3 className="font-bold text-green-800 text-sm mb-1">✓ Ödeneğe Hak Var</h3>
+                  <p className="text-green-700 text-xs">{result.eligibilityMessage}</p>
+                </div>
+
+                {/* Günlük */}
+                <div className="section-card p-3">
+                  <h3 className="font-bold text-sgk-700 text-sm mb-2">Günlük Ödeneği</h3>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span>Günlük Ort.:</span>
+                      <span className="font-semibold">{result.dailyAverage.toLocaleString('tr-TR')} ₺</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Günlük Ödenek (%40):</span>
+                      <span className="font-semibold">{result.dailyBenefit.toLocaleString('tr-TR')} ₺</span>
+                    </div>
+                    <div className="flex justify-between border-t border-sgk-200 pt-1">
+                      <span>Ödenen (sınır):</span>
+                      <span className="font-bold text-sgk-700">{result.cappedDailyBenefit.toLocaleString('tr-TR')} ₺</span>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {result.isEligible && (
-                <>
-                  <div className="section-card bg-green-50 border-green-200">
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">✓</div>
-                      <div>
-                        <h3 className="font-bold text-green-800">Ödeneğe Hak Var</h3>
-                        <p className="text-green-700 text-sm mt-1">{result.eligibilityMessage}</p>
-                      </div>
-                    </div>
+                {/* Aylık */}
+                <div className="section-card p-3">
+                  <h3 className="font-bold text-sgk-700 text-sm mb-2">Aylık Ödeneği</h3>
+                  <div className="flex justify-between text-sm">
+                    <span>Ödenen Aylık:</span>
+                    <span className="font-bold text-sgk-700">{result.cappedMonthlyBenefit.toLocaleString('tr-TR')} ₺</span>
+                  </div>
+                </div>
+
+                {/* Süre */}
+                <div className="section-card p-3">
+                  <h3 className="font-bold text-sgk-700 text-sm mb-2">Ödeneği Alma Süresi</h3>
+                  <div className="flex justify-between text-sm">
+                    <span>Gün:</span>
+                    <span className="font-bold">{result.benefitDays} gün ({(result.benefitDays / 30).toFixed(1)} ay)</span>
+                  </div>
+                </div>
+
+                {/* NET ÖDENEĞI */}
+                <div className="section-card bg-blue-50 border-blue-300 border-2 p-3">
+                  <h3 className="text-sm font-bold text-blue-900 mb-2">Brüt Toplam</h3>
+                  <p className="text-xs text-blue-700 mb-2">
+                    {result.totalBenefitAmount.toLocaleString('tr-TR')} ₺
+                  </p>
+                  
+                  <div className="flex justify-between text-xs mb-2 py-2 border-t border-blue-300">
+                    <span className="text-blue-700">Damga Vergisi (%0,759):</span>
+                    <span className="font-semibold text-red-600">-{result.stampTaxAmount.toLocaleString('tr-TR')} ₺</span>
                   </div>
 
-                  <div className="section-card">
-                    <h3 className="text-lg font-bold text-sgk-700 mb-4">Günlük Ödeneği</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sgk-600">Günlük ortalama kazanç:</span>
-                        <span className="font-semibold">{result.dailyAverage.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sgk-600">Günlük ödeneği (%40):</span>
-                        <span className="font-semibold">{result.dailyBenefit.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                      <div className="flex justify-between pt-2 border-t border-sgk-200">
-                        <span className="text-sgk-600">Asgari ücretin %80 (günlük):</span>
-                        <span className="font-semibold text-sgk-500">{result.maxAllowedDaily.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                      <div className="flex justify-between bg-sgk-50 p-2 rounded border border-sgk-200 mt-2">
-                        <span className="font-bold text-sgk-700">Ödenen günlük ödeneği:</span>
-                        <span className="font-bold text-sgk-700">{result.cappedDailyBenefit.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="section-card">
-                    <h3 className="text-lg font-bold text-sgk-700 mb-4">Aylık Ödeneği</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sgk-600">Teorik aylık ödeneği:</span>
-                        <span className="font-semibold">{result.monthlyBenefit.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                      <div className="flex justify-between bg-sgk-50 p-2 rounded border border-sgk-200">
-                        <span className="font-bold text-sgk-700">Ödenen aylık ödeneği:</span>
-                        <span className="font-bold text-sgk-700">{result.cappedMonthlyBenefit.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="section-card">
-                    <h3 className="text-lg font-bold text-sgk-700 mb-4">Ödeneği Alma Süresi</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-lg">
-                        <span className="text-sgk-600">Toplam gün:</span>
-                        <span className="font-bold text-sgk-700">{result.benefitDays} gün</span>
-                      </div>
-                      <div className="flex justify-between text-lg">
-                        <span className="text-sgk-600">Toplam ay (yaklaşık):</span>
-                        <span className="font-bold text-sgk-700">{(result.benefitDays / 30).toFixed(1)} ay</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="section-card bg-blue-50 border-blue-200">
-                    <h3 className="text-lg font-bold text-blue-900 mb-4">Toplam Ödeneği Tutarı</h3>
-                    
-                    <div className="space-y-3 mb-4">
-                      <div className="flex justify-between">
-                        <span className="text-blue-700">Brüt Toplam Ödeneği:</span>
-                        <span className="font-semibold text-blue-900">{result.totalBenefitAmount.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                      <div className="flex justify-between pt-3 border-t-2 border-blue-300">
-                        <span className="text-blue-700">Damga Vergisi Kesintisi ({result.stampTaxRate.toFixed(3)}%):</span>
-                        <span className="font-semibold text-red-600">-{result.stampTaxAmount.toLocaleString('tr-TR')} ₺</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-400">
-                      <h4 className="text-sm font-semibold text-blue-600 mb-2">NET ÖDENEĞI</h4>
-                      <p className="text-4xl font-bold text-blue-900">
-                        {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
-                      </p>
-                      <p className="text-xs text-blue-600 mt-2">
-                        Alacağı net ücret (damga vergisi sonrası)
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-blue-600 mt-3 text-center">
-                      Hesaplama: {result.totalBenefitAmount.toLocaleString('tr-TR')} ₺ - {result.stampTaxAmount.toLocaleString('tr-TR')} ₺ = {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
+                  <div className="bg-white p-2 rounded border border-blue-300 text-center">
+                    <p className="text-xs font-bold text-blue-600 mb-1">NET ÖDENEĞI</p>
+                    <p className="text-lg md:text-2xl font-bold text-blue-900">
+                      {result.netBenefitAmount.toLocaleString('tr-TR')} ₺
                     </p>
+                    <p className="text-xs text-blue-600 mt-1">Alacağı Net Ücret</p>
                   </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="section-card text-center py-12">
-              <div className="text-6xl mb-4">📊</div>
-              <h3 className="text-xl font-bold text-sgk-700 mb-2">Hesaplamaya Hazır</h3>
-              <p className="text-sgk-600">
-                Verileri girdikten sonra "Hesapla" düğmesine tıklayın
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
-      {/* Information Section */}
-      <section className="section-card mt-12">
-        <h2 className="text-2xl font-bold text-sgk-700 mb-4">Hukuki Çerçeve</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-          <div>
-            <h3 className="font-bold text-sgk-700 mb-2">Madde 50</h3>
-            <p className="text-sgk-600">
-              İşsizlik ödeneği, sigortalının son dört aylık prime esas kazançlarının günlük ortalamasının %40'ıdır. 
-              Asgari ücretin %80'ini geçemez.
-            </p>
+        {!result && (
+          <div className="section-card text-center py-8">
+            <div className="text-4xl mb-2">📊</div>
+            <p className="text-sm text-sgk-600">Verileri girdikten sonra "Hesapla"ya tıklayın</p>
           </div>
-          <div>
-            <h3 className="font-bold text-sgk-700 mb-2">Madde 51</h3>
-            <p className="text-sgk-600">
-              Hizmet akdinin sona ermesinden önceki son 120 gün hizmet akdine tabi olanlardan, son 3 yılda:
-              600+ gün = 180 gün; 900+ gün = 240 gün; 1080+ gün = 300 gün ödenek.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-sgk-700 mb-2">Madde 52</h3>
-            <p className="text-sgk-600">
-              Kurumca teklif edilen mesleklere uygun işi reddeden, başka işte çalışan veya emekli olan 
-              kişilerin ödeneği kesilir.
-            </p>
-          </div>
-        </div>
-      </section>
+        )}
+      </div>
     </div>
   );
 }

@@ -14,20 +14,16 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className="antialiased">
-        <header className="bg-sgk-700 text-white shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-3xl font-bold">SGK İşsizlik Ödeneği Hesaplama</h1>
-            <p className="text-sgk-200 text-sm mt-1">4447 sayılı Kanun - Madde 50</p>
+        <header className="bg-sgk-700 text-white shadow-lg py-3">
+          <div className="px-3 md:px-4">
+            <h1 className="text-xl md:text-2xl font-bold">SGK İşsizlik Ödeneği</h1>
           </div>
         </header>
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main>
           {children}
         </main>
-        <footer className="bg-sgk-800 text-sgk-100 mt-16 py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
-            <p>© 2026 - SGK İşsizlik Ödeneği Hesaplama Aracı</p>
-            <p className="text-sgk-300 mt-2">Madde 50, 51 ve 52 - 4447 sayılı Kanun</p>
-          </div>
+        <footer className="bg-sgk-800 text-sgk-100 py-2 mt-4 text-center text-xs">
+          <p>© 2026 SGK İşsizlik Ödeneği Hesaplama</p>
         </footer>
       </body>
     </html>
