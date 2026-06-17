@@ -66,7 +66,7 @@ export default function Home() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="w-full max-w-full">
+    <div className="w-full max-w-sm mx-auto">
       <div className="space-y-2 p-3 md:p-4">
         
         {/* Son 4 Ay Brüt Kazancı - Kompakt */}
