@@ -69,6 +69,9 @@ export function calculateUnemploymentBenefit(
       cappedDailyBenefit: 0,
       cappedMonthlyBenefit: 0,
       totalBenefitAmount: 0,
+      stampTaxRate: 0,
+      stampTaxAmount: 0,
+      netBenefitAmount: 0,
       isEligible: false,
       eligibilityMessage: 'Geçerli asgari ücret tarihi bulunamadı',
     };
