@@ -74,7 +74,7 @@ export default function Home() {
         <section className="section-card p-3 md:p-4">
           <h2 className="text-lg md:text-xl font-bold text-sgk-700 mb-2">
             Son 4 Ay Brüt Kazancı 
-            <span className="text-xs md:text-sm font-normal text-sgk-600 ml-1">(SGK Hizmet Dökümen'deki)</span>
+            <span className="text-xs md:text-sm font-normal text-sgk-600 ml-1">(SGK Hizmet Dökümündeki)</span>
           </h2>
           <p className="text-xs md:text-sm text-sgk-600 mb-2">İlk satıra yazınca otomatik kopyalanır</p>
           
