@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SGK İşsizlik Ödeneği Hesaplama',
-  description: '4447 sayılı Sosyal Sigortalar ve Genel Sağlık Sigortası Kanununa göre işsizlik ödeneği hesaplayıcısı',
+  title: 'İşsizlik Ödeneği Maaşı Hesaplama',
+  description: '4447 sayılı Sosyal Sigortalar Kanununa göre işsizlik ödeneği maaşı hesaplayıcısı',
 };
 
 export default function RootLayout({
